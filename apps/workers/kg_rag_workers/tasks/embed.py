@@ -136,5 +136,10 @@ def prepare(doc_id: str) -> None:
             points.append((pid, vec, payload))
 
         upsert_vectors(client, collection, points)
+
+        # Chain graph build to populate Neo4j nodes/relationships
+        from kg_rag_workers.worker import make_celery
+        celery = make_celery()
+        celery.send_task("graph.build", args=[doc_id])
     finally:
         session.close()

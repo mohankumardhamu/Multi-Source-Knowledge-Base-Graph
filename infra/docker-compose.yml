@@ -124,6 +124,15 @@ services:
       redis:
         condition: service_started
 
+  ui:
+    build:
+      context: ..
+      dockerfile: ui/Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "3000:80"
+
 volumes:
   postgres_data:
   qdrant_storage:

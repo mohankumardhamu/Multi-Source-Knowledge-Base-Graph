@@ -12,6 +12,8 @@ from kg_rag_api.routes.generate import router as generate_router
 from kg_rag_api.routes.roadmap import router as roadmap_router
 from kg_rag_api.routes.answer import router as answer_router
 from kg_rag_api.routes.agent import router as agent_router
+from kg_rag_api.routes.ui import router as ui_router
+from kg_rag_api.routes.admin_api import router as admin_api_router
 from kg_rag_common.settings import get_settings
 
 
@@ -38,6 +40,8 @@ def create_app() -> FastAPI:
     app.include_router(roadmap_router)
     app.include_router(answer_router)
     app.include_router(agent_router)
+    app.include_router(ui_router)
+    app.include_router(admin_api_router)
 
     @app.get("/")
     def root() -> dict[str, str]:
