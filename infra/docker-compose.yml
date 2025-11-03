@@ -1,0 +1,109 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kg_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-kgdb}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:v1.8.3
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+
+  neo4j:
+    image: neo4j:5.25
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH:-neo4j/password}
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+
+  minio:
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      KG_ENVIRONMENT: dev
+      KG_APP_NAME: kg-rag
+      KG_REDIS_DSN: redis://redis:6379/0
+      KG_QDRANT_URL: http://qdrant:6333
+      KG_NEO4J_URL: bolt://neo4j:7687
+      KG_NEO4J_USER: neo4j
+      KG_NEO4J_PASSWORD: password
+      KG_S3_ENDPOINT_URL: http://minio:9000
+      KG_S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      KG_S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      KG_S3_BUCKET: kg-bucket
+      KG_POSTGRES_DSN: postgresql+psycopg://kg:kg_pass@postgres:5432/kgdb
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      qdrant:
+        condition: service_started
+      neo4j:
+        condition: service_started
+      minio:
+        condition: service_started
+
+  worker:
+    build:
+      context: ..
+      dockerfile: apps/workers/Dockerfile
+    environment:
+      KG_ENVIRONMENT: dev
+      KG_REDIS_DSN: redis://redis:6379/0
+      KG_POSTGRES_DSN: postgresql+psycopg://kg:kg_pass@postgres:5432/kgdb
+    depends_on:
+      redis:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  qdrant_storage:
+  neo4j_data:
+  neo4j_logs:
+  minio_data:
