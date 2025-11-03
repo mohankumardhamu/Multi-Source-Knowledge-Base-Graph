@@ -58,3 +58,60 @@ Notes:
    - http://localhost:8000
 
 OpenAPI docs at http://localhost:8000/docs and http://localhost:8000/redoc
+
+## Dev Stack Access
+
+Start the stack:
+
+- `make up` (or `docker compose -f infra/docker-compose.yml up -d`)
+
+Services and how to access them:
+
+- API (FastAPI)
+  - Base: http://localhost:8000
+  - Health: http://localhost:8000/health
+  - OpenAPI: http://localhost:8000/docs and http://localhost:8000/redoc
+  - Upload docs: `POST /v1/docs` (multipart form fields: `file`, `title`, optional `domain`)
+
+- Postgres
+  - Host: `localhost`, Port: `5432`
+  - User: `kg`, Password: `kg_pass`, DB: `kgdb`
+  - DSN: `postgresql://kg:kg_pass@localhost:5432/kgdb`
+  - Viewers: pgAdmin, DBeaver, TablePlus (use the above connection details)
+
+- Redis
+  - Host: `localhost`, Port: `6379` (no password)
+  - CLI: `redis-cli -h localhost -p 6379`
+  - GUI: RedisInsight or similar
+
+- Qdrant (Vector DB)
+  - REST: http://localhost:6333
+  - gRPC: `localhost:6334`
+  - Quick check: `curl http://localhost:6333/collections`
+  - UI: not included; use API/clients or add a dashboard container if needed
+
+- Neo4j
+  - Browser UI: http://localhost:7474
+  - Bolt endpoint: `bolt://localhost:7687`
+  - Credentials: `neo4j` / `password`
+
+- MinIO (Object Storage)
+  - Console (web UI): http://localhost:9001
+  - S3 API endpoint: http://localhost:9000
+  - Access key: `minioadmin`, Secret key: `minioadmin`
+
+- Workers (Celery)
+  - No exposed ports; processes background jobs via Redis
+
+- pgAdmin (Postgres UI)
+  - URL: http://localhost:5050
+  - Login: `admin@local` / `admin` (override with env vars `PGADMIN_DEFAULT_EMAIL`, `PGADMIN_DEFAULT_PASSWORD`)
+  - Add server inside pgAdmin:
+    - Host: `postgres`, Port: `5432`, Username: `kg`, Password: `kg_pass`, DB: `kgdb`
+    - Note: When using a desktop client outside Docker, use host `localhost` instead of `postgres`.
+
+- RedisInsight (Redis UI)
+  - URL: http://localhost:5540
+  - Add database connection:
+    - Host: `redis`, Port: `6379` (no password)
+    - Note: From outside Docker, connect to `localhost:6379`.

@@ -6,6 +6,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import Integer, Text
 
 
 class Base(DeclarativeBase):
@@ -49,3 +50,23 @@ class IngestionStatus(Base):
     )
 
     document: Mapped[Document] = relationship(back_populates="ingestion_status")
+
+
+class Chunk(Base):
+    __tablename__ = "chunks"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
+    page_from: Mapped[int] = mapped_column(Integer, nullable=False)
+    page_to: Mapped[int] = mapped_column(Integer, nullable=False)
+    heading_path: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    block_type: Mapped[str] = mapped_column(String(16), nullable=False)
+    token_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )

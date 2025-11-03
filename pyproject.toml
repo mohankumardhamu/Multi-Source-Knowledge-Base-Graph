@@ -22,6 +22,7 @@ alembic = "^1.13.3"
 psycopg = {version = "^3.2.3", extras = ["binary"]}
 boto3 = "^1.35.57"
 python-multipart = "^0.0.9"
+pymupdf = "^1.24.11"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"

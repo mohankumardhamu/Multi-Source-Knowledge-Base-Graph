@@ -58,6 +58,29 @@ services:
     volumes:
       - minio_data:/data
 
+  pgadmin:
+    image: dpage/pgadmin4:8.12
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    ports:
+      - "5540:5540"
+    depends_on:
+      redis:
+        condition: service_started
+    volumes:
+      - redisinsight_data:/data
+
   api:
     build:
       context: ..
@@ -107,3 +130,5 @@ volumes:
   neo4j_data:
   neo4j_logs:
   minio_data:
+  pgadmin_data:
+  redisinsight_data:
