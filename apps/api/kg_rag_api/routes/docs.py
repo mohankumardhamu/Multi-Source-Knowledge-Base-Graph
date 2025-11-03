@@ -8,6 +8,8 @@ import boto3
 from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from fastapi import Form
+from typing import List
+from pathlib import Path as _P
 from sqlalchemy.orm import Session
 
 from kg_rag_common.settings import get_settings
@@ -112,3 +114,85 @@ def get_status(doc_id: uuid.UUID, db: Session = Depends(get_db)):
     stages = status_row.stages if status_row and status_row.stages else {"events": []}
     return {"status": status_row.status if status_row else doc.status, "stages": stages}
 
+
+@router.post("/bulk", status_code=status.HTTP_202_ACCEPTED)
+async def upload_documents_bulk(
+    files: List[UploadFile] = File(...),
+    domain: str | None = Form(None),
+    db: Session = Depends(get_db),
+):
+    if not files:
+        raise HTTPException(status_code=400, detail="No files provided")
+
+    s3 = get_s3_client()
+    ensure_bucket(s3, DOCS_BUCKET)
+    celery = make_celery()
+
+    results: list[dict[str, str]] = []
+    for f in files:
+        try:
+            if f.content_type not in ("application/pdf", "application/octet-stream"):
+                results.append({
+                    "filename": f.filename or "",
+                    "error": "Only PDF files are accepted",
+                })
+                continue
+
+            content = await f.read()
+            if not content:
+                results.append({
+                    "filename": f.filename or "",
+                    "error": "Empty file",
+                })
+                continue
+
+            sha256 = hashlib.sha256(content).hexdigest()
+            doc_id = uuid.uuid4()
+            s3_key = f"documents/{doc_id}.pdf"
+
+            # upload to S3
+            s3.upload_fileobj(
+                Fileobj=io.BytesIO(content),
+                Bucket=DOCS_BUCKET,
+                Key=s3_key,
+                ExtraArgs={"ContentType": "application/pdf"},
+            )
+
+            title = _P(f.filename or str(doc_id)).stem
+            doc = Document(
+                id=doc_id,
+                title=title,
+                domain=domain,
+                s3_bucket=DOCS_BUCKET,
+                s3_key=s3_key,
+                checksum_sha256=sha256,
+                status="queued",
+            )
+            db.add(doc)
+            db.flush()
+
+            ingest = IngestionStatus(
+                document_id=doc.id, status="queued", stages={"events": []}
+            )
+            db.add(ingest)
+
+            # enqueue
+            celery.send_task("ingest.process", args=[str(doc.id)])
+
+            results.append({
+                "filename": f.filename or title,
+                "id": str(doc.id),
+                "status": "queued",
+            })
+        except ClientError as e:
+            results.append({
+                "filename": f.filename or "",
+                "error": f"Failed to upload: {e}",
+            })
+        except Exception as e:
+            results.append({
+                "filename": f.filename or "",
+                "error": str(e),
+            })
+
+    return {"results": results}
