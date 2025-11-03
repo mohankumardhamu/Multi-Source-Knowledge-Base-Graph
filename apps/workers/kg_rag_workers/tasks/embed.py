@@ -130,10 +130,11 @@ def prepare(doc_id: str) -> None:
                 "page_to": page_to,
                 "heading_path": heading_path,
                 "block_type": block_type,
+                # include snippet to support downstream generation without DB
+                "content": (content or "")[:1000],
             }
             points.append((pid, vec, payload))
 
         upsert_vectors(client, collection, points)
     finally:
         session.close()
-
