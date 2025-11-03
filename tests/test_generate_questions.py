@@ -70,6 +70,6 @@ def test_generate_questions_deterministic(monkeypatch):
     # Deterministic across calls with same seed
     assert out1 == out2
     # Contains required fields
-    q = out1[0]
+    assert out1["status"] in ("vector", "fallback")
+    q = out1["questions"][0]
     assert set(q.keys()) == {"id", "type", "prompt", "options", "answer", "explanation", "rubric", "provenance"}
-

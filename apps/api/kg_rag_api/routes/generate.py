@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 
 from kg_rag_common.retriever import vector_search
 from kg_rag_common import graph as graph_util
@@ -35,6 +36,11 @@ class QuestionOut(BaseModel):
     explanation: str
     rubric: str
     provenance: Dict[str, Any]
+
+
+class GenerateResponse(BaseModel):
+    status: str  # "vector" or "fallback"
+    questions: List[QuestionOut]
 
 
 def _namespace_for_seed(seed: int) -> uuid.UUID:
@@ -191,7 +197,7 @@ def get_db() -> Session:
         yield s
 
 
-@router.post("/generate/questions", response_model=List[QuestionOut])
+@router.post("/generate/questions", response_model=GenerateResponse)
 def generate_questions(body: GenerateRequest, db: Session = Depends(get_db)):
     if not body.domain and not body.topic:
         raise HTTPException(status_code=400, detail="Provide at least 'domain' or 'topic'")
@@ -199,6 +205,7 @@ def generate_questions(body: GenerateRequest, db: Session = Depends(get_db)):
     # Build filters if topic provided
     filters = {"topics": [body.topic]} if body.topic else None
     hits = vector_search(body.topic or body.domain or "concepts", domain, top_k=max(10, body.n), filters=filters)
+    source = "vector"
     # Fallback: if no vector hits, sample chunks from DB by domain/topic
     if not hits:
         q = db.query(Chunk)
@@ -206,7 +213,10 @@ def generate_questions(body: GenerateRequest, db: Session = Depends(get_db)):
             q = q.filter(Chunk.topics.contains([body.topic]))
         else:
             q = q.join(Document, Chunk.document_id == Document.id).filter(Document.domain == domain)
-        rows = q.limit(max(10, body.n)).all()
+        rows = q.order_by(desc(Chunk.created_at)).limit(max(10, body.n)).all()
+        # If still empty (e.g., domain mismatch), fall back to latest chunks across all domains
+        if not rows:
+            rows = db.query(Chunk).order_by(desc(Chunk.created_at)).limit(max(10, body.n)).all()
         hits = [
             {
                 "id": str(c.id),
@@ -221,9 +231,10 @@ def generate_questions(body: GenerateRequest, db: Session = Depends(get_db)):
             }
             for c in rows
         ]
+        source = "fallback"
     qs = _generate_questions_from_hits(hits, domain, body.n, body.difficulty, body.seed)
     _persist_questions(domain, body.topic, qs)
-    return qs
+    return GenerateResponse(status=source, questions=qs)
 
 
 @router.get("/questions/{qid}", response_model=QuestionOut)
