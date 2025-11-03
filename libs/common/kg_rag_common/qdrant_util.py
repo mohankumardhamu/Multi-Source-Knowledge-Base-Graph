@@ -10,7 +10,7 @@ from kg_rag_common.settings import get_settings
 
 def get_client() -> QdrantClient:
     s = get_settings()
-    return QdrantClient(url=s.qdrant_url)
+    return QdrantClient(url=s.qdrant_url, prefer_grpc=False, timeout=30.0, check_compatibility=False)
 
 
 def ensure_collection(client: QdrantClient, name: str, vector_size: int) -> None:
@@ -33,4 +33,3 @@ def upsert_vectors(
         qpoints.append(PointStruct(id=pid, vector=vec, payload=payload))
     if qpoints:
         client.upsert(collection_name=collection, points=qpoints)
-

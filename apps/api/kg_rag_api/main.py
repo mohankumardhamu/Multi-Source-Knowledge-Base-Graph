@@ -7,6 +7,7 @@ from fastapi import FastAPI
 
 from kg_rag_api.routes.health import router as health_router
 from kg_rag_api.routes.docs import router as docs_router
+from kg_rag_api.routes.search import router as search_router
 from kg_rag_common.settings import get_settings
 
 
@@ -28,6 +29,7 @@ def create_app() -> FastAPI:
 
     app.include_router(health_router)
     app.include_router(docs_router)
+    app.include_router(search_router)
 
     @app.get("/")
     def root() -> dict[str, str]:
