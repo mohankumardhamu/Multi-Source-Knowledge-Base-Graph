@@ -42,29 +42,35 @@ def overview(db: Session = Depends(get_db)) -> Dict[str, Any]:
     ]
 
     # Qdrant collections and total points
-    qclient = get_qdrant_client()
-    collections = qclient.get_collections().collections
     qdrant = {"collections": [], "total_points": 0}
-    for c in collections:
-        name = c.name
-        try:
-            info = qclient.get_collection(name)
-            # newer clients use points_count
-            count = getattr(info, "points_count", None)
-            if count is None:
-                # fallback
-                count = getattr(info.status, "points_count", 0) if hasattr(info, "status") else 0
-        except Exception:
-            count = 0
-        qdrant["collections"].append({"name": name, "count": int(count or 0)})
-        qdrant["total_points"] += int(count or 0)
+    try:
+        qclient = get_qdrant_client()
+        collections = qclient.get_collections().collections
+        for c in collections:
+            name = c.name
+            try:
+                info = qclient.get_collection(name)
+                # newer clients use points_count
+                count = getattr(info, "points_count", None)
+                if count is None:
+                    # fallback
+                    count = getattr(info.status, "points_count", 0) if hasattr(info, "status") else 0
+            except Exception:
+                count = 0
+            qdrant["collections"].append({"name": name, "count": int(count or 0)})
+            qdrant["total_points"] += int(count or 0)
+    except Exception as e:
+        qdrant = {"error": str(e)}
 
     # Neo4j counts
-    driver = graph_util.get_driver()
-    with graph_util.session_ctx(driver) as gsession:
-        nodes_count = gsession.run("MATCH (n) RETURN count(n) AS c").single()["c"]
-        rels_count = gsession.run("MATCH ()-[r]->() RETURN count(r) AS c").single()["c"]
-    neo4j = {"nodes": int(nodes_count or 0), "relationships": int(rels_count or 0)}
+    try:
+        driver = graph_util.get_driver()
+        with graph_util.session_ctx(driver) as gsession:
+            nodes_count = gsession.run("MATCH (n) RETURN count(n) AS c").single()["c"]
+            rels_count = gsession.run("MATCH ()-[r]->() RETURN count(r) AS c").single()["c"]
+        neo4j = {"nodes": int(nodes_count or 0), "relationships": int(rels_count or 0)}
+    except Exception as e:
+        neo4j = {"error": str(e)}
 
     # Redis keys
     r = _redis()
@@ -101,4 +107,3 @@ def overview(db: Session = Depends(get_db)) -> Dict[str, Any]:
         "redis": redis_info,
         "postgres": postgres,
     }
-
