@@ -99,10 +99,10 @@ def process(doc_id: str) -> None:
         )
         session.commit()
 
-        # Emit next task in pipeline
+        # Emit next task in pipeline (classification)
         from kg_rag_workers.worker import make_celery
 
         celery = make_celery()
-        celery.send_task("embed.prepare", args=[doc_id])
+        celery.send_task("classify.run", args=[doc_id])
     finally:
         session.close()

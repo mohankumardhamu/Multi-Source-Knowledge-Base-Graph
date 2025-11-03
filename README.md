@@ -105,7 +105,7 @@ Services and how to access them:
 
 - pgAdmin (Postgres UI)
   - URL: http://localhost:5050
-  - Login: `admin@local` / `admin` (override with env vars `PGADMIN_DEFAULT_EMAIL`, `PGADMIN_DEFAULT_PASSWORD`)
+  - Login: `admin@example.com` / `admin` (override with env vars `PGADMIN_DEFAULT_EMAIL`, `PGADMIN_DEFAULT_PASSWORD`)
   - Add server inside pgAdmin:
     - Host: `postgres`, Port: `5432`, Username: `kg`, Password: `kg_pass`, DB: `kgdb`
     - Note: When using a desktop client outside Docker, use host `localhost` instead of `postgres`.

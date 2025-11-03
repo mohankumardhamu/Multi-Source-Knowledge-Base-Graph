@@ -64,6 +64,7 @@ class Chunk(Base):
     page_from: Mapped[int] = mapped_column(Integer, nullable=False)
     page_to: Mapped[int] = mapped_column(Integer, nullable=False)
     heading_path: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    topics: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
     block_type: Mapped[str] = mapped_column(String(16), nullable=False)
     token_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     content: Mapped[str] = mapped_column(Text, nullable=False)
