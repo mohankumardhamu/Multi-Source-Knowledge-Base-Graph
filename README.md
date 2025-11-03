@@ -6,6 +6,7 @@ A mono-repo for a knowledge-graph RAG stack.
 - apps/workers: Celery workers on Redis
 - libs/common: Shared DTOs and settings via pydantic-settings
 - infra: Docker Compose stack for development (Postgres, Redis, Qdrant, Neo4j, MinIO, API, Workers)
+ - ui: Minimal React single‑page app (served by Nginx) proxying to the API
 
 ## Requirements
 
@@ -59,6 +60,47 @@ Notes:
 
 OpenAPI docs at http://localhost:8000/docs and http://localhost:8000/redoc
 
+## Getting Started (curl)
+
+- Upload a PDF (multipart):
+
+```bash
+curl -sS -X POST http://localhost:8000/v1/docs \
+  -F file=@/path/to/file.pdf \
+  -F title="My Sample Doc" \
+  -F domain="python"
+```
+
+Response includes an `id`. Check status:
+
+```bash
+curl -sS http://localhost:8000/v1/docs/<DOCUMENT_ID>/status | jq .
+```
+
+- Vector search (by domain):
+
+```bash
+curl -sS -X POST http://localhost:8000/v1/search/vector \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "query": "how do http servers handle requests?",
+        "domain": "python",
+        "top_k": 5
+      }' | jq .
+```
+
+- Get an answer with citations (domain optional; auto-classified if omitted):
+
+```bash
+curl -sS -X POST http://localhost:8000/v1/answer \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "query": "Explain concurrency in Python and common pitfalls.",
+        "domain": "python",
+        "top_k": 5
+      }' | jq .
+```
+
 ## Dev Stack Access
 
 Start the stack:
@@ -103,6 +145,13 @@ Services and how to access them:
 - Workers (Celery)
   - No exposed ports; processes background jobs via Redis
 
+- UI (React over Nginx)
+  - URL: http://localhost:3000
+  - Routes:
+    - /admin — document list with re‑run buttons (calls API)
+    - /explore/graph — runs canned Cypher via /v1/search/graph
+    - /learn/roadmap?domain=python — renders roadmap JSON by week
+
 - pgAdmin (Postgres UI)
   - URL: http://localhost:5050
   - Login: `admin@example.com` / `admin` (override with env vars `PGADMIN_DEFAULT_EMAIL`, `PGADMIN_DEFAULT_PASSWORD`)
@@ -115,3 +164,79 @@ Services and how to access them:
   - Add database connection:
     - Host: `redis`, Port: `6379` (no password)
     - Note: From outside Docker, connect to `localhost:6379`.
+
+## Observability
+
+- Logging (structlog JSON)
+  - API and workers emit structured JSON logs to stdout.
+  - Configured via `kg_rag_common.observability.configure_logging`.
+
+- Metrics (Prometheus)
+  - API endpoint: `GET /metrics` (default on http://localhost:8000/metrics)
+  - Workers expose a Prometheus HTTP server (default `9109` inside container). Publish a port if you want to scrape from host.
+  - Included metrics:
+    - http_requests_total{method,path,status}
+    - http_request_duration_seconds{method,path}
+    - celery_queue_depth{queue}
+    - celery_tasks_started_total{task}, celery_tasks_succeeded_total{task}, celery_tasks_failed_total{task}
+    - celery_task_duration_seconds{task}
+
+- Tracing (OpenTelemetry)
+  - Auto‑instrumented libs: FastAPI, SQLAlchemy, Redis, Requests
+  - Configure OTLP exporter endpoint via env: `OTEL_EXPORTER_OTLP_ENDPOINT` (e.g. `http://otel-collector:4318`)
+  - Sampling: set ratio via `KG_OTEL_SAMPLER_RATIO` (default 0.1) or `OTEL_TRACES_SAMPLER_ARG`
+
+## Admin and Ops APIs
+
+- Documents + metrics overview
+  - `GET /v1/admin/overview` → JSON with:
+    - `documents`: uploaded docs from Postgres
+    - `qdrant`: collections and total points
+    - `neo4j`: node and relationship counts
+    - `redis`: keys count
+    - `postgres`: per‑table row counts
+
+## Core API Endpoints (selection)
+
+- Ingestion
+  - `POST /v1/docs` — upload a PDF (multipart: file, title, optional domain)
+  - `GET /v1/docs/{id}/status` — ingestion status + stages
+
+- Search
+  - `POST /v1/search/vector` — vector similarity; supports `filters`
+  - `POST /v1/search/graph` — read‑only Cypher execution
+
+- Generation and Q&A
+  - `POST /v1/generate/questions` — deterministic templated questions
+    - Response includes `status` field: `vector` or `fallback`
+  - `GET /v1/questions/{id}` — fetch a stored question
+  - `POST /v1/generate/roadmap` — build study roadmap nodes/edges
+  - `GET /v1/roadmaps/{domain}` — fetch roadmap JSON
+  - `POST /v1/answer` — compose an answer with citations and next topics
+
+- Agent
+  - `POST /v1/agent/ask` — modes: `qa`, `tutor`, `interview`
+
+## Data Flow (high‑level)
+
+1) Upload PDF → stored in MinIO, `documents` row created
+2) Celery pipeline: `ingest.process` → `classify.run` → `embed.prepare` → `graph.build`
+   - Extract chunks (text/code), topics, and store in Postgres
+   - Embed chunks, upsert vectors into Qdrant (collection per domain)
+   - Build Neo4j nodes: Domain, Document, Chunk, Topic, relations
+
+## Configuration (env)
+
+- API
+  - `KG_POSTGRES_DSN` (e.g., `postgresql+psycopg://kg:kg_pass@postgres:5432/kgdb`)
+  - `KG_REDIS_DSN` (e.g., `redis://redis:6379/0`)
+  - `KG_QDRANT_URL` (e.g., `http://qdrant:6333`)
+  - `KG_S3_*` — MinIO/S3 endpoint and credentials
+  - OpenTelemetry: `OTEL_EXPORTER_OTLP_ENDPOINT`, `KG_OTEL_SAMPLER_RATIO`
+
+- Workers
+  - Same `KG_*` vars as API
+  - `METRICS_PORT` for Prometheus worker metrics (default `9109`)
+
+- UI
+  - Served at http://localhost:3000 and proxies API paths to `api:8000` inside Docker.

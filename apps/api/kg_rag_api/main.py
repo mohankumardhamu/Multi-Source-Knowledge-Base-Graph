@@ -15,6 +15,7 @@ from kg_rag_api.routes.agent import router as agent_router
 from kg_rag_api.routes.ui import router as ui_router
 from kg_rag_api.routes.admin_api import router as admin_api_router
 from kg_rag_common.settings import get_settings
+from kg_rag_common.observability import configure_logging, configure_tracing, configure_metrics_api
 
 
 @asynccontextmanager
@@ -26,6 +27,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    configure_logging("kg-rag-api")
+    configure_tracing("kg-rag-api")
     app = FastAPI(
         title="kg-rag API",
         version="0.1.0",
@@ -42,6 +45,8 @@ def create_app() -> FastAPI:
     app.include_router(agent_router)
     app.include_router(ui_router)
     app.include_router(admin_api_router)
+
+    configure_metrics_api(app)
 
     @app.get("/")
     def root() -> dict[str, str]:
