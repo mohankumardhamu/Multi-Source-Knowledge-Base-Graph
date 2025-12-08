@@ -151,6 +151,18 @@ Services and how to access them:
     - /admin — document list with re‑run buttons (calls API)
     - /explore/graph — runs canned Cypher via /v1/search/graph
     - /learn/roadmap?domain=python — renders roadmap JSON by week
+  - Note: This is the minimal original UI
+
+- Frontend (Modern React App)
+  - URL: http://localhost:3001
+  - Features:
+    - Document upload and management
+    - Vector and graph search
+    - Q&A assistant with citations
+    - Learning roadmap visualization
+    - Admin dashboard with system metrics
+  - Built with: React 18, TypeScript, shadcn/ui, Tailwind CSS
+  - See `frontend/README.md` for details
 
 - pgAdmin (Postgres UI)
   - URL: http://localhost:5050
