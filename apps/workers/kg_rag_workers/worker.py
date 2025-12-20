@@ -4,8 +4,8 @@ import os
 
 from celery import Celery
 
-from kg_rag_common.settings import get_settings
-from kg_rag_common.observability import (
+from libs.common.kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.observability import (
     configure_logging,
     configure_tracing,
     start_worker_metrics_server,
@@ -29,7 +29,7 @@ def make_celery() -> Celery:
         "kg_rag",
         broker=broker_url,
         backend=backend_url,
-        include=["kg_rag_workers.tasks"],
+        include=["apps.workers.kg_rag_workers.tasks"],
     )
 
     app.conf.update(
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     celery_app.start(argv=[
         "celery",
         "-A",
-        "kg_rag_workers.worker:celery_app",
+        "apps.workers.kg_rag_workers.worker:celery_app",
         "worker",
         "--loglevel=INFO",
     ])

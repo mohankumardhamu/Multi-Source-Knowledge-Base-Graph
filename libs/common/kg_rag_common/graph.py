@@ -6,7 +6,7 @@ from typing import Any, Callable, Iterable
 
 from neo4j import GraphDatabase, basic_auth
 
-from kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.settings import get_settings
 
 
 def get_driver():

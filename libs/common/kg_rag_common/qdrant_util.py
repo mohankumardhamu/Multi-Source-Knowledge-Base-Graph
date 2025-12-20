@@ -5,7 +5,7 @@ from typing import Any, Iterable, List, Tuple
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams, PointStruct
 
-from kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.settings import get_settings
 
 
 def get_client() -> QdrantClient:

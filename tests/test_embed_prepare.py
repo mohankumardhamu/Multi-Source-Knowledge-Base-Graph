@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-from kg_rag_common.embeddings import EmbeddingProvider
+from libs.common.kg_rag_common.embeddings import EmbeddingProvider
 
 
 class FixedProvider(EmbeddingProvider):
@@ -85,7 +85,7 @@ class CaptureQdrant:
 
 def test_embed_prepare_chunks_and_upserts(monkeypatch):
     from apps.workers.kg_rag_workers.tasks import embed as embed_task
-    from kg_rag_common import qdrant_util
+    from libs.common.kg_rag_common import qdrant_util
 
     doc = FakeDoc(domain="python")
     # Create one long text content ~ 1000 tokens and a code block with two functions

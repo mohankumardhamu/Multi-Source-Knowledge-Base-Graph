@@ -5,8 +5,8 @@ from typing import Any, Dict, Iterable, List, Optional
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as qm
 
-from kg_rag_common.embeddings import get_provider
-from kg_rag_common.qdrant_util import get_client, ensure_collection
+from libs.common.kg_rag_common.embeddings import get_provider
+from libs.common.kg_rag_common.qdrant_util import get_client, ensure_collection
 
 
 def _to_condition(key: str, value: Any):

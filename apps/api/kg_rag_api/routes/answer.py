@@ -7,10 +7,10 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from kg_rag_common.classify import detect_language
-from kg_rag_common.retriever import vector_search
-from kg_rag_common.reranker import CosineReranker
-from kg_rag_common import graph as graph_util
+from libs.common.kg_rag_common.classify import detect_language
+from libs.common.kg_rag_common.retriever import vector_search
+from libs.common.kg_rag_common.reranker import CosineReranker
+from libs.common.kg_rag_common import graph as graph_util
 
 
 router = APIRouter(prefix="/v1", tags=["answer"])

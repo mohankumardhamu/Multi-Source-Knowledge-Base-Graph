@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from kg_rag_api.main import app
+from apps.api.kg_rag_api.main import app
 
 
 def test_agent_qa_routes_and_tools(monkeypatch):
     # Mock vector search to return hits with content
-    from kg_rag_common import retriever
+    from libs.common.kg_rag_common import retriever
     hits = [
         {"id": "p1", "score": 0.2, "payload": {"doc_id": "d1", "chunk_id": "c1", "page_from": 1, "page_to": 1, "heading_path": ["H"], "content": "Example content about HTTP and servers."}},
         {"id": "p2", "score": 0.1, "payload": {"doc_id": "d2", "chunk_id": "c2", "page_from": 2, "page_to": 3, "heading_path": ["H2"], "content": "Concurrency using threads."}},
@@ -15,7 +15,7 @@ def test_agent_qa_routes_and_tools(monkeypatch):
     monkeypatch.setattr(retriever, "vector_search", lambda q, d, top_k=5, filters=None: hits)
 
     # Mock graph neighbors
-    from kg_rag_common import graph as graph_util
+    from libs.common.kg_rag_common import graph as graph_util
 
     class FakeSession:
         def run(self, cypher, **params):
@@ -46,7 +46,7 @@ def test_agent_qa_routes_and_tools(monkeypatch):
 
 
 def test_agent_interview_selects_questions(monkeypatch):
-    from kg_rag_common import graph as graph_util
+    from libs.common.kg_rag_common import graph as graph_util
     # create fake questions
     rows = [
         {"id": f"q{i}", "type": "mcq", "prompt": f"P{i}", "options": ["a","b"], "answer": "a", "rubric": "correct==a"}

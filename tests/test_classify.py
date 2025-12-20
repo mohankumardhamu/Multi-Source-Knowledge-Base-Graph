@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from kg_rag_common.classify import detect_language, detect_topics, classify_document
+from libs.common.kg_rag_common.classify import detect_language, detect_topics, classify_document
 
 
 def test_detect_language_python_simple():

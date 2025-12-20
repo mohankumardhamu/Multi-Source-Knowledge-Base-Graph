@@ -5,17 +5,17 @@ from typing import AsyncIterator
 
 from fastapi import FastAPI
 
-from kg_rag_api.routes.health import router as health_router
-from kg_rag_api.routes.docs import router as docs_router
-from kg_rag_api.routes.search import router as search_router
-from kg_rag_api.routes.generate import router as generate_router
-from kg_rag_api.routes.roadmap import router as roadmap_router
-from kg_rag_api.routes.answer import router as answer_router
-from kg_rag_api.routes.agent import router as agent_router
-from kg_rag_api.routes.ui import router as ui_router
-from kg_rag_api.routes.admin_api import router as admin_api_router
-from kg_rag_common.settings import get_settings
-from kg_rag_common.observability import configure_logging, configure_tracing, configure_metrics_api
+from apps.api.kg_rag_api.routes.health import router as health_router
+from apps.api.kg_rag_api.routes.docs import router as docs_router
+from apps.api.kg_rag_api.routes.search import router as search_router
+from apps.api.kg_rag_api.routes.generate import router as generate_router
+from apps.api.kg_rag_api.routes.roadmap import router as roadmap_router
+from apps.api.kg_rag_api.routes.answer import router as answer_router
+from apps.api.kg_rag_api.routes.agent import router as agent_router
+from apps.api.kg_rag_api.routes.ui import router as ui_router
+from apps.api.kg_rag_api.routes.admin_api import router as admin_api_router
+from libs.common.kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.observability import configure_logging, configure_tracing, configure_metrics_api
 
 
 @asynccontextmanager

@@ -5,11 +5,11 @@ import random
 
 from sqlalchemy.orm import Session
 
-from kg_rag_common.classify import detect_language
-from kg_rag_common.retriever import vector_search
-from kg_rag_common.reranker import CosineReranker
-from kg_rag_common import graph as graph_util
-from kg_rag_common.models import Chunk
+from libs.common.kg_rag_common.classify import detect_language
+from libs.common.kg_rag_common.retriever import vector_search
+from libs.common.kg_rag_common.reranker import CosineReranker
+from libs.common.kg_rag_common import graph as graph_util
+from libs.common.kg_rag_common.models import Chunk
 
 
 class Agent:

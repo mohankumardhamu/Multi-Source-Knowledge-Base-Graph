@@ -7,10 +7,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
-from kg_rag_common.models import Document, IngestionStatus
-from kg_rag_common import graph as graph_util
-from kg_rag_common.settings import get_settings
-from kg_rag_workers.worker import make_celery  # type: ignore
+from libs.common.kg_rag_common.models import Document, IngestionStatus
+from libs.common.kg_rag_common import graph as graph_util
+from libs.common.kg_rag_common.settings import get_settings
+from apps.workers.kg_rag_workers.worker import make_celery  # type: ignore
 from ..db import session_scope
 
 

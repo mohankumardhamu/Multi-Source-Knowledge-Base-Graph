@@ -8,10 +8,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 from redis import Redis
 
-from kg_rag_common.retriever import vector_search, rerank_stub
-from kg_rag_common.settings import get_settings
-from kg_rag_common import graph as graph_util
-from kg_rag_common.models import Document
+from libs.common.kg_rag_common.retriever import vector_search, rerank_stub
+from libs.common.kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common import graph as graph_util
+from libs.common.kg_rag_common.models import Document
 from sqlalchemy.orm import Session
 
 from ..db import session_scope

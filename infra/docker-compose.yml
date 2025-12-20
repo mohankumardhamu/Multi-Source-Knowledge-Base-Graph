@@ -133,16 +133,16 @@ services:
     ports:
       - "3000:80"
 
-  frontend:
-    build:
-      context: ..
-      dockerfile: frontend/Dockerfile
-    depends_on:
-      - api
-    ports:
-      - "3001:80"
-    environment:
-      - NODE_ENV=production
+  # frontend:
+  #   build:
+  #     context: ..
+  #     dockerfile: frontend/Dockerfile
+  #   depends_on:
+  #     - api
+  #   ports:
+  #     - "3001:80"
+  #   environment:
+  #     - NODE_ENV=production
 
 volumes:
   postgres_data:

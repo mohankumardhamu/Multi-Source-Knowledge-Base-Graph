@@ -9,9 +9,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from kg_rag_common.settings import get_settings
-from kg_rag_common.models import Document, Chunk, IngestionStatus
-from kg_rag_common.classify import classify_document, detect_topics
+from libs.common.kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.models import Document, Chunk, IngestionStatus
+from libs.common.kg_rag_common.classify import classify_document, detect_topics
 
 
 def _session() -> Session:
@@ -63,7 +63,7 @@ def run(doc_id: str) -> None:
         session.commit()
 
         # chain next task
-        from kg_rag_workers.worker import make_celery
+        from apps.workers.kg_rag_workers.worker import make_celery
 
         celery = make_celery()
         celery.send_task("embed.prepare", args=[doc_id])

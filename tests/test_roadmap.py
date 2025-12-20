@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from kg_rag_api.main import app
+from apps.api.kg_rag_api.main import app
 
 
 def test_generate_and_get_roadmap(monkeypatch):
-    from kg_rag_common import graph as graph_util
+    from libs.common.kg_rag_common import graph as graph_util
 
     topics = [
         {"name": "intro to algorithms"},

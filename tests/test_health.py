@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from kg_rag_api.main import app
+from apps.api.kg_rag_api.main import app
 
 
 def test_health() -> None:

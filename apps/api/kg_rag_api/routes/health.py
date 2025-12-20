@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from kg_rag_common.dto import HealthResponse
-from kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.dto import HealthResponse
+from libs.common.kg_rag_common.settings import get_settings
 
 
 router = APIRouter(tags=["health"])

@@ -84,7 +84,7 @@ class FakeDriver:
 
 def test_graph_build_merges_nodes_and_relationships(monkeypatch):
     from apps.workers.kg_rag_workers.tasks import graph as graph_task
-    from kg_rag_common import graph as graph_util
+    from libs.common.kg_rag_common import graph as graph_util
 
     doc = FakeDoc(domain="python")
     chunks = [FakeChunk(doc.id), FakeChunk(doc.id, block_type="code", topics=["algorithms"])]

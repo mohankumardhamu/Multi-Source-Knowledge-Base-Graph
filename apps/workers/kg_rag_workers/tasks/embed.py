@@ -10,10 +10,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from kg_rag_common.settings import get_settings
-from kg_rag_common.models import Document, Chunk
-from kg_rag_common.embeddings import get_provider
-from kg_rag_common.qdrant_util import get_client, ensure_collection, upsert_vectors
+from libs.common.kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.models import Document, Chunk
+from libs.common.kg_rag_common.embeddings import get_provider
+from libs.common.kg_rag_common.qdrant_util import get_client, ensure_collection, upsert_vectors
 
 
 def _session() -> Session:
@@ -138,7 +138,7 @@ def prepare(doc_id: str) -> None:
         upsert_vectors(client, collection, points)
 
         # Chain graph build to populate Neo4j nodes/relationships
-        from kg_rag_workers.worker import make_celery
+        from apps.workers.kg_rag_workers.worker import make_celery
         celery = make_celery()
         celery.send_task("graph.build", args=[doc_id])
     finally:

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from kg_rag_api.main import app
+from apps.api.kg_rag_api.main import app
 
 
 def test_generate_questions_deterministic(monkeypatch):
     # Mock retriever
-    from kg_rag_common import retriever
+    from libs.common.kg_rag_common import retriever
 
     hits = [
         {
@@ -37,7 +37,7 @@ def test_generate_questions_deterministic(monkeypatch):
     monkeypatch.setattr(retriever, "vector_search", lambda q, d, top_k=10, filters=None: hits)
 
     # Mock graph driver writes (no-ops)
-    from kg_rag_common import graph as graph_util
+    from libs.common.kg_rag_common import graph as graph_util
 
     class FakeTx:
         def run(self, *args, **kwargs):

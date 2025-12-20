@@ -12,9 +12,9 @@ from typing import List
 from pathlib import Path as _P
 from sqlalchemy.orm import Session
 
-from kg_rag_common.settings import get_settings
-from kg_rag_common.models import Document, IngestionStatus
-from kg_rag_workers.worker import make_celery
+from libs.common.kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.models import Document, IngestionStatus
+from apps.workers.kg_rag_workers.worker import make_celery
 from ..db import session_scope
 
 

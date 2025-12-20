@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from kg_rag_api.agent.agent import Agent
+from apps.api.kg_rag_api.agent.agent import Agent
 from ..db import session_scope
 
 

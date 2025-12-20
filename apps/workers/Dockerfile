@@ -23,4 +23,4 @@ COPY . .
 # Install the local project package after sources are available
 RUN poetry install --no-interaction --no-ansi --only-root
 
-CMD ["celery", "-A", "kg_rag_workers.worker:celery_app", "worker", "--loglevel=INFO"]
+CMD ["celery", "-A", "apps.workers.kg_rag_workers.worker:celery_app", "worker", "--loglevel=INFO"]

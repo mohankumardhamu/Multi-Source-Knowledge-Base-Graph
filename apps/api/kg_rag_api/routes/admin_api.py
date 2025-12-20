@@ -7,10 +7,10 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from redis import Redis
 
-from kg_rag_common.settings import get_settings
-from kg_rag_common.qdrant_util import get_client as get_qdrant_client
-from kg_rag_common import graph as graph_util
-from kg_rag_common.models import Document
+from libs.common.kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.qdrant_util import get_client as get_qdrant_client
+from libs.common.kg_rag_common import graph as graph_util
+from libs.common.kg_rag_common.models import Document
 from ..db import session_scope, engine as sa_engine
 
 

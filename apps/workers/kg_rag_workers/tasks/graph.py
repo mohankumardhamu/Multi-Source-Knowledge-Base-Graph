@@ -7,9 +7,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from kg_rag_common.settings import get_settings
-from kg_rag_common.models import Document, Chunk
-from kg_rag_common import graph as g
+from libs.common.kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.models import Document, Chunk
+from libs.common.kg_rag_common import graph as g
 
 
 def _session() -> Session:

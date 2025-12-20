@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import fitz  # PyMuPDF
 
-from kg_rag_common.text_extraction import extract_pdf_blocks
+from libs.common.kg_rag_common.text_extraction import extract_pdf_blocks
 
 
 def ensure_sample_pdf(path: Path) -> bytes:

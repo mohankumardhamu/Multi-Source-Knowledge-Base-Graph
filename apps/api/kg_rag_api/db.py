@@ -6,7 +6,7 @@ from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.settings import get_settings
 
 
 _settings = get_settings()

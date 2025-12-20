@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Tuple
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from kg_rag_common import graph as graph_util
+from libs.common.kg_rag_common import graph as graph_util
 
 
 router = APIRouter(prefix="/v1", tags=["roadmap"])

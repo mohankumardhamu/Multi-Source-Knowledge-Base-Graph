@@ -8,13 +8,13 @@ from celery import shared_task
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
-from kg_rag_common.models import IngestionStatus, Document, Chunk
-from kg_rag_common.settings import get_settings
+from libs.common.kg_rag_common.models import IngestionStatus, Document, Chunk
+from libs.common.kg_rag_common.settings import get_settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import boto3
 from botocore.exceptions import ClientError
-from kg_rag_common.text_extraction import extract_pdf_blocks
+from libs.common.kg_rag_common.text_extraction import extract_pdf_blocks
 
 
 def _session() -> Session:
@@ -100,7 +100,7 @@ def process(doc_id: str) -> None:
         session.commit()
 
         # Emit next task in pipeline (classification)
-        from kg_rag_workers.worker import make_celery
+        from apps.workers.kg_rag_workers.worker import make_celery
 
         celery = make_celery()
         celery.send_task("classify.run", args=[doc_id])
