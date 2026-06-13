@@ -9,10 +9,18 @@ export const apiClient: AxiosInstance = axios.create({
     },
 });
 
+let accessToken: string | null = null;
+
+export function setAccessToken(token: string | null): void {
+    accessToken = token;
+}
+
 // Request interceptor
 apiClient.interceptors.request.use(
     (config) => {
-        // Add any auth tokens here if needed
+        if (accessToken) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
+        }
         return config;
     },
     (error) => {

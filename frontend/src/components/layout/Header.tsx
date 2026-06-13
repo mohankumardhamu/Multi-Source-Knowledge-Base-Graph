@@ -1,8 +1,10 @@
 import { Button } from '@/components/ui/button';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, LogIn, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useAuth } from 'react-oidc-context';
 
 export function Header() {
+    const auth = useAuth();
     const [darkMode, setDarkMode] = useState(false);
 
     useEffect(() => {
@@ -32,6 +34,32 @@ export function Header() {
                 <h2 className="text-lg font-semibold">Knowledge Graph RAG</h2>
             </div>
             <div className="flex items-center gap-4">
+                {auth.isAuthenticated ? (
+                    <>
+                        <span className="text-sm text-muted-foreground">
+                            {auth.user?.profile?.user_name ?? auth.user?.profile?.sub}
+                        </span>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => auth.removeUser()}
+                            aria-label="Sign out"
+                        >
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Sign out
+                        </Button>
+                    </>
+                ) : (
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => auth.signinRedirect()}
+                        aria-label="Sign in"
+                    >
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Sign in
+                    </Button>
+                )}
                 <Button
                     variant="ghost"
                     size="icon"

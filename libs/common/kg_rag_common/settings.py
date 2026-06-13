@@ -39,6 +39,15 @@ class Settings(BaseSettings):
     s3_secret_key: str = Field(default="minioadmin")
     s3_bucket: str = Field(default="kg-bucket")
 
+    # UAA (OAuth2/OIDC identity provider)
+    uaa_issuer_url: str = Field(default="http://localhost:8080/uaa")
+    uaa_jwks_url: Optional[str] = Field(default=None)
+    uaa_client_id: str = Field(default="kg-rag-frontend")
+
+    @property
+    def uaa_jwks_uri(self) -> str:
+        return self.uaa_jwks_url or f"{self.uaa_issuer_url}/token_keys"
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

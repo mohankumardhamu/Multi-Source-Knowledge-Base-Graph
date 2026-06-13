@@ -98,6 +98,10 @@ services:
       KG_S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       KG_S3_BUCKET: kg-bucket
       KG_POSTGRES_DSN: postgresql+psycopg://kg:kg_pass@postgres:5432/kgdb
+      KG_UAA_ISSUER_URL: http://host.docker.internal:8080/uaa
+      KG_UAA_CLIENT_ID: kg-rag-frontend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8000:8000"
     depends_on:
