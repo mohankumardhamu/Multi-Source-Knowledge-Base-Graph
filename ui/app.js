@@ -1,6 +1,13 @@
 const { createElement: h, useEffect, useState } = React;
 const { createRoot } = ReactDOM;
-const { BrowserRouter, Routes, Route, Link, useSearchParams } = ReactRouterDOM;
+
+// Handle ReactRouterDOM UMD global variations
+const RR = window.ReactRouterDOM || {};
+const BrowserRouter = RR.BrowserRouter || (() => h('div', null, 'BrowserRouter missing'));
+const Routes = RR.Routes || (() => h('div', null, 'Routes missing'));
+const Route = RR.Route || (() => h('div', null, 'Route missing'));
+const Link = RR.Link || (() => h('div', null, 'Link missing'));
+const useSearchParams = RR.useSearchParams || (() => [new URLSearchParams()]);
 
 async function postJSON(path, body) {
   const res = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -103,7 +110,10 @@ function LearnRoadmapPage() {
     })();
   }, [domain]);
   const weeks = {};
-  (data?.nodes || []).forEach(n => { (weeks[n.week] ||= []).push(n); });
+  (data?.nodes || []).forEach(n => { 
+    if (!weeks[n.week]) weeks[n.week] = [];
+    weeks[n.week].push(n); 
+  });
   return h('div', { className: 'max-w-5xl mx-auto px-4' },
     h('h1', { className: 'text-2xl font-semibold mb-4' }, `Roadmap: ${domain}`),
     error ? h('div', { className: 'text-red-600' }, error) : null,

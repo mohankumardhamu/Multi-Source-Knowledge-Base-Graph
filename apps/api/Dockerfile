@@ -10,7 +10,7 @@ WORKDIR /app
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl build-essential \
-    && pip install "poetry==${POETRY_VERSION}" \
+    && pip install "poetry==${POETRY_VERSION}" "setuptools" \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only dependency files first for better caching
