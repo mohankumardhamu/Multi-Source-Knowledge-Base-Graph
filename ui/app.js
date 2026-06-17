@@ -1,12 +1,19 @@
-const { createElement: h, useEffect, useState } = React;
-const { createRoot } = ReactDOM;
+// Safely get globals with fallbacks
+const { createElement: h, useEffect, useState } = window.React || { 
+  createElement: () => null, 
+  useEffect: () => {}, 
+  useState: (v) => [v, () => {}] 
+};
+const { createRoot } = window.ReactDOM || { 
+  createRoot: () => ({ render: () => console.error('ReactDOM missing') }) 
+};
 
 // Handle ReactRouterDOM UMD global variations
 const RR = window.ReactRouterDOM || {};
-const BrowserRouter = RR.BrowserRouter || (() => h('div', null, 'BrowserRouter missing'));
-const Routes = RR.Routes || (() => h('div', null, 'Routes missing'));
-const Route = RR.Route || (() => h('div', null, 'Route missing'));
-const Link = RR.Link || (() => h('div', null, 'Link missing'));
+const BrowserRouter = RR.BrowserRouter || (({children}) => h('div', null, children));
+const Routes = RR.Routes || (({children}) => h('div', null, children));
+const Route = RR.Route || (() => null);
+const Link = RR.Link || (({children}) => h('span', null, children));
 const useSearchParams = RR.useSearchParams || (() => [new URLSearchParams()]);
 
 async function postJSON(path, body) {

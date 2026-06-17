@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Database, HardDrive, Activity } from 'lucide-react';
 import { adminService } from '@/services/admin';
-import { AdminOverview } from '@/types/api';
+import type { AdminOverview } from '@/types/api';
 
 export function AdminPage() {
     const [overview, setOverview] = useState<AdminOverview | null>(null);

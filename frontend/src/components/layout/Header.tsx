@@ -37,7 +37,7 @@ export function Header() {
                 {auth.isAuthenticated ? (
                     <>
                         <span className="text-sm text-muted-foreground">
-                            {auth.user?.profile?.user_name ?? auth.user?.profile?.sub}
+                            {String(auth.user?.profile?.user_name ?? auth.user?.profile?.sub ?? '')}
                         </span>
                         <Button
                             variant="ghost"

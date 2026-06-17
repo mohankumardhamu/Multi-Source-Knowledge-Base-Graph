@@ -1,5 +1,5 @@
 import apiClient from './api';
-import {
+import type {
     DocumentUploadResponse,
     IngestionStatus,
     BulkUploadResponse,

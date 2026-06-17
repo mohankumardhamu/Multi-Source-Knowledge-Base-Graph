@@ -1,5 +1,5 @@
 import apiClient from './api';
-import { AdminOverview, HealthResponse } from '@/types/api';
+import type { AdminOverview, HealthResponse } from '@/types/api';
 
 export const adminService = {
     /**

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageSquare, Send } from 'lucide-react';
 import { qaService } from '@/services/qa';
-import { AnswerResponse } from '@/types/api';
+import type { AnswerResponse } from '@/types/api';
 
 export function QAPage() {
     const [query, setQuery] = useState('');

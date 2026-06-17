@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search as SearchIcon, Database } from 'lucide-react';
 import { searchService } from '@/services/search';
-import { VectorSearchResponse, GraphSearchResponse } from '@/types/api';
+import type { VectorSearchResponse, GraphSearchResponse } from '@/types/api';
 
 export function SearchPage() {
     const [activeTab, setActiveTab] = useState<'vector' | 'graph'>('vector');

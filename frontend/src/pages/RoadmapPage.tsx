@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Map, Loader2 } from 'lucide-react';
 import { qaService } from '@/services/qa';
-import { RoadmapResponse } from '@/types/api';
+import type { RoadmapResponse } from '@/types/api';
 
 export function RoadmapPage() {
     const [domain, setDomain] = useState('');
