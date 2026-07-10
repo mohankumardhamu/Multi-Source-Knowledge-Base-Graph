@@ -39,6 +39,18 @@ export interface BulkUploadResponse {
     results: BulkUploadResult[];
 }
 
+export interface DocumentListItem {
+    id: string;
+    title: string;
+    domain?: string | null;
+    status: string;
+    uploaded_at?: string | null;
+    total_pages: number;
+    embedding_status: string;
+    embedding_count: number;
+    embedding_model: string;
+}
+
 // Search Types
 export interface VectorSearchRequest {
     query: string;

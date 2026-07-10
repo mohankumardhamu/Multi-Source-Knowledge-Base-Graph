@@ -2,18 +2,21 @@ from __future__ import annotations
 
 import hashlib
 import io
+import os
 import uuid
 
 import boto3
 from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from fastapi import Form
-from typing import List
+from typing import Any, Dict, List
 from pathlib import Path as _P
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from libs.common.kg_rag_common.settings import get_settings
-from libs.common.kg_rag_common.models import Document, IngestionStatus
+from libs.common.kg_rag_common.models import Document, IngestionStatus, Chunk
+from libs.common.kg_rag_common.qdrant_util import get_client as get_qdrant_client, count_vectors_for_doc
 from apps.workers.kg_rag_workers.worker import make_celery
 from ..db import session_scope
 
@@ -46,6 +49,50 @@ def ensure_bucket(client, bucket_name: str) -> None:
 def get_db() -> Session:
     with session_scope() as s:
         yield s
+
+
+@router.get("")
+def list_documents(db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
+    docs = db.query(Document).order_by(Document.created_at.desc()).all()
+    if not docs:
+        return []
+
+    doc_ids = [d.id for d in docs]
+    page_counts = dict(
+        db.query(Chunk.document_id, func.max(Chunk.page_to))
+        .filter(Chunk.document_id.in_(doc_ids))
+        .group_by(Chunk.document_id)
+        .all()
+    )
+
+    qdrant = get_qdrant_client()
+    embedding_model = os.getenv("KG_EMBED_PROVIDER", "local-fake")
+
+    results: List[Dict[str, Any]] = []
+    for doc in docs:
+        domain = (doc.domain or "default").lower()
+        collection = f"vectors_{domain}"
+        embedding_count = count_vectors_for_doc(qdrant, collection, str(doc.id))
+
+        if doc.status in ("queued", "processing"):
+            embedding_status = "pending"
+        elif embedding_count > 0:
+            embedding_status = "completed"
+        else:
+            embedding_status = "processing"
+
+        results.append({
+            "id": str(doc.id),
+            "title": doc.title,
+            "domain": doc.domain,
+            "status": doc.status,
+            "uploaded_at": doc.created_at.isoformat() if doc.created_at else None,
+            "total_pages": int(page_counts.get(doc.id) or 0),
+            "embedding_status": embedding_status,
+            "embedding_count": embedding_count,
+            "embedding_model": embedding_model,
+        })
+    return results
 
 
 @router.post("", status_code=status.HTTP_202_ACCEPTED)

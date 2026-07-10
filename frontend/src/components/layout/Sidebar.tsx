@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
     Home,
     FileText,
+    Library,
     Search,
     MessageSquare,
     Map,
@@ -12,6 +13,7 @@ import { cn } from '@/utils/cn';
 const navigation = [
     { name: 'Home', href: '/', icon: Home },
     { name: 'Documents', href: '/documents', icon: FileText },
+    { name: 'Document Library', href: '/document-library', icon: Library },
     { name: 'Search', href: '/search', icon: Search },
     { name: 'Q&A', href: '/qa', icon: MessageSquare },
     { name: 'Roadmap', href: '/roadmap', icon: Map },

@@ -9,25 +9,6 @@ export const apiClient: AxiosInstance = axios.create({
     },
 });
 
-let accessToken: string | null = null;
-
-export function setAccessToken(token: string | null): void {
-    accessToken = token;
-}
-
-// Request interceptor
-apiClient.interceptors.request.use(
-    (config) => {
-        if (accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
-
 // Response interceptor
 apiClient.interceptors.response.use(
     (response) => response,

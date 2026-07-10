@@ -24,7 +24,7 @@ psycopg = {version = "^3.2.3", extras = ["binary"]}
 boto3 = "^1.35.57"
 python-multipart = "^0.0.9"
 pymupdf = "^1.24.11"
-qdrant-client = "^1.11.3"
+qdrant-client = "1.11.3"
 numpy = "^2.1.3"
 neo4j = "^5.27.0"
 structlog = "^24.4.0"
@@ -37,7 +37,6 @@ opentelemetry-instrumentation-sqlalchemy = "^0.48b0"
 opentelemetry-instrumentation-redis = "^0.48b0"
 opentelemetry-instrumentation-requests = "^0.48b0"
 requests = "^2.32.3"
-pyjwt = {extras = ["crypto"], version = "^2.9.0"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"

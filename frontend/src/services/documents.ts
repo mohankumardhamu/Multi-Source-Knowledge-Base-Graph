@@ -3,9 +3,18 @@ import type {
     DocumentUploadResponse,
     IngestionStatus,
     BulkUploadResponse,
+    DocumentListItem,
 } from '@/types/api';
 
 export const documentsService = {
+    /**
+     * List all uploaded documents with ingestion/embedding metadata
+     */
+    async listDocuments(): Promise<DocumentListItem[]> {
+        const response = await apiClient.get<DocumentListItem[]>('/v1/docs');
+        return response.data;
+    },
+
     /**
      * Upload a single PDF document
      */

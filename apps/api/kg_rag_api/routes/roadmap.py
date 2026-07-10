@@ -17,8 +17,8 @@ router = APIRouter(prefix="/v1", tags=["roadmap"])
 
 class RoadmapRequest(BaseModel):
     domain: str
-    horizon_weeks: int = Field(ge=1, le=52)
-    hours_per_week: int = Field(ge=1, le=60)
+    horizon_weeks: int = Field(default=8, ge=1, le=52)
+    hours_per_week: int = Field(default=5, ge=1, le=60)
 
 
 class RoadmapNodeOut(BaseModel):
@@ -250,5 +250,9 @@ def get_roadmap(domain: str):
             domain=domain,
         )
         edges = [RoadmapEdgeOut(source=r["src"], target=r["dst"]) for r in res_edges]
+
+    if not nodes:
+        raise HTTPException(status_code=404, detail="No roadmap found for domain")
+
     return RoadmapResponse(nodes=nodes, edges=edges)
 
